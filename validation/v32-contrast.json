@@ -1,0 +1,44 @@
+[
+  {
+    "name": "primary",
+    "foreground": "#f2f2f7",
+    "background": "#1c1e26",
+    "ratio": 14.899682020453556
+  },
+  {
+    "name": "secondary",
+    "foreground": "#b2b4c4",
+    "background": "#1c1e26",
+    "ratio": 8.090273264968735
+  },
+  {
+    "name": "caption",
+    "foreground": "#b2b4c4",
+    "background": "#252834",
+    "ratio": 7.137060652082578
+  },
+  {
+    "name": "button",
+    "foreground": "#211a36",
+    "background": "#c1afff",
+    "ratio": 8.567229339133359
+  },
+  {
+    "name": "key",
+    "foreground": "#f6f6fa",
+    "background": "#363946",
+    "ratio": 10.642353357730629
+  },
+  {
+    "name": "key origin",
+    "foreground": "#c5c5d2",
+    "background": "#363946",
+    "ratio": 6.714502049877247
+  },
+  {
+    "name": "selected origin",
+    "foreground": "#e5d6ff",
+    "background": "#4b3d68",
+    "ratio": 7.105366475537916
+  }
+]

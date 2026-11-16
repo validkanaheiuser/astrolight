@@ -1,0 +1,10 @@
+{
+  "name": "astrolight-ui-checks",
+  "private": true,
+  "devDependencies": {
+    "playwright": "1.65.1"
+  },
+  "scripts": {
+    "test": "node check-ui.cjs"
+  }
+}

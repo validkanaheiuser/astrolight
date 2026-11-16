@@ -1,0 +1,66 @@
+{
+  "errors": [],
+  "metrics": [
+    {
+      "width": 1440,
+      "height": 960,
+      "scrollHeight": 960,
+      "viewport": 960,
+      "paletteHeight": 148.46875,
+      "overlap": 0,
+      "minKey": 40.9375
+    },
+    {
+      "width": 1280,
+      "height": 920,
+      "scrollHeight": 920,
+      "viewport": 920,
+      "paletteHeight": 132.890625,
+      "overlap": 0,
+      "minKey": 36.515625
+    },
+    {
+      "width": 1120,
+      "height": 760,
+      "scrollHeight": 1255,
+      "viewport": 760,
+      "paletteHeight": 360,
+      "overlap": 0,
+      "minKey": 31.5625
+    },
+    {
+      "width": 900,
+      "height": 700,
+      "scrollHeight": 1614,
+      "viewport": 700,
+      "paletteHeight": 360,
+      "overlap": 0,
+      "minKey": 33.984375
+    },
+    {
+      "width": 720,
+      "height": 600,
+      "scrollHeight": 1690,
+      "viewport": 600,
+      "paletteHeight": 360,
+      "overlap": 0,
+      "minKey": 32.734375
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scrollHeight": 2166,
+      "viewport": 844,
+      "paletteHeight": 360,
+      "overlap": 0,
+      "minKey": 29.890625
+    }
+  ],
+  "undoRedo": true,
+  "modifierReset": true,
+  "searchVietnamese": true,
+  "macroAssignment": true,
+  "keyboardNavigation": true,
+  "reviewCancelNoDeviceWrite": true,
+  "reducedMotion": true
+}

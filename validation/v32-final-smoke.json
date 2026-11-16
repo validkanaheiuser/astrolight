@@ -1,0 +1,13 @@
+{
+  "version": "3.2.0",
+  "connected": true,
+  "typingPriority": true,
+  "rate": 30,
+  "finalLabelCheck": true,
+  "extraSizes": [
+    1240,
+    1120,
+    1920
+  ],
+  "hardwareRemapWrites": 0
+}

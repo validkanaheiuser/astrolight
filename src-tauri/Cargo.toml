@@ -1,0 +1,38 @@
+[package]
+name = "astrolight"
+version = "3.2.0"
+description = "Astrolight — smooth Lucky65 RGB studio"
+edition = "2021"
+default-run = "astrolight"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "=2.12.5", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hidapi = "2.6"
+rfd = { version = "0.15", default-features = false }
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_System_Threading", "Win32_Security", "Win32_UI_WindowsAndMessaging", "Win32_UI_Input_KeyboardAndMouse", "Win32_System_LibraryLoader", "Win32_System_Registry"] }
+webview2-com = "=0.39.1"
+windows-core = "=0.62.2"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true
+
+[[bin]]
+name = "astrolight"
+path = "src/main.rs"
+
+[[bin]]
+name = "hid-benchmark"
+path = "src/benchmark.rs"

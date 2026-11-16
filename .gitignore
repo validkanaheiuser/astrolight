@@ -1,0 +1,14 @@
+# Build products and generated schemas
+/src-tauri/target/
+/src-tauri/gen/
+/dist/
+# Optional Node-based validation tools
+**/node_modules/
+/validation/ui-run/
+# Local files
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
