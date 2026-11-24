@@ -40,12 +40,12 @@ impl Store {
             return Ok(vec![]);
         }
         if fs::metadata(&p).map_err(err)?.len() > 2_000_000 {
-            return Err("Tệp preset quá lớn".into());
+            return Err("E:file_too_large".into());
         }
         let list: Vec<Preset> =
             serde_json::from_str(&fs::read_to_string(p).map_err(err)?).map_err(err)?;
         if list.len() > 100 {
-            return Err("Tối đa 100 preset".into());
+            return Err("E:too_many_presets".into());
         }
         for p in &list {
             validate_preset(p)?;
@@ -70,15 +70,15 @@ fn atomic_write(path: &Path, bytes: &[u8]) -> Result<(), String> {
 }
 fn validate_preset(p: &Preset) -> Result<(), String> {
     if p.name.trim().is_empty() || p.name.chars().count() > 60 {
-        return Err("Tên preset cần từ 1 đến 60 ký tự".into());
+        return Err("E:preset_name".into());
     }
-    Scene::new(p.config.clone(), &protocol::keys())?;
+    Scene::new(p.config.clone(), protocol::keys())?;
     Ok(())
 }
 #[derive(Serialize)]
 struct Initial {
     minimized: bool,
-    keys: Vec<protocol::Key>,
+    keys: &'static [protocol::Key],
     config: Config,
     status: Status,
     presets: Vec<Preset>,
@@ -98,7 +98,7 @@ fn init(app: tauri::AppHandle, engine: State<Engine>, store: State<Store>) -> In
     let keymap = match read_keymap(&store) {
         Ok(k) => k,
         Err(e) => {
-            warning.push_str(&format!(" Keymap trên máy không đọc được: {e}. Đang hiển thị mặc định; chưa ghi vào bàn phím."));
+            warning = format!("E:keymap_unreadable:{e}");
             keymap::Keymap::default()
         }
     };
@@ -143,12 +143,12 @@ async fn control(
             protocol::effect(id, b, s, 7)?;
             Action::Effect(id, b, s)
         }
-        _ => return Err("Lệnh không hợp lệ".into()),
+        _ => return Err("E:bad_command".into()),
     };
     let rx = engine.request(action)?;
     tauri::async_runtime::spawn_blocking(move || {
         rx.recv_timeout(std::time::Duration::from_secs(5))
-            .map_err(|_| "HID chưa phản hồi. Kiểm tra lại kết nối USB.".to_owned())?
+            .map_err(|_| "E:hid_timeout".to_owned())?
     })
     .await
     .map_err(err)?
@@ -162,7 +162,7 @@ fn save_preset(preset: Preset, store: State<Store>) -> Result<Vec<Preset>, Strin
         items[i] = preset;
     } else {
         if items.len() >= 100 {
-            return Err("Tối đa 100 preset".into());
+            return Err("E:too_many_presets".into());
         }
         items.push(preset);
     }
@@ -178,11 +178,11 @@ fn delete_preset(name: String, store: State<Store>) -> Result<Vec<Preset>, Strin
     Ok(items)
 }
 #[tauri::command]
-async fn export_preset(preset: Preset) -> Result<bool, String> {
+async fn export_preset(preset: Preset, title: Option<String>) -> Result<bool, String> {
     validate_preset(&preset)?;
     tauri::async_runtime::spawn_blocking(move || {
         let Some(path) = rfd::FileDialog::new()
-            .set_title("Xuất preset Astrolight")
+            .set_title(title.as_deref().unwrap_or("Export preset"))
             .add_filter("JSON", &["json"])
             .set_file_name("astrolight-preset.json")
             .save_file()
@@ -202,24 +202,24 @@ async fn export_preset(preset: Preset) -> Result<bool, String> {
     .map_err(err)?
 }
 #[tauri::command]
-async fn import_preset() -> Result<Option<Preset>, String> {
-    tauri::async_runtime::spawn_blocking(|| {
+async fn import_preset(title: Option<String>) -> Result<Option<Preset>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
         let Some(path) = rfd::FileDialog::new()
-            .set_title("Nhập preset")
+            .set_title(title.as_deref().unwrap_or("Import preset"))
             .add_filter("JSON", &["json"])
             .pick_file()
         else {
             return Ok(None);
         };
         if fs::metadata(&path).map_err(err)?.len() > 100_000 {
-            return Err("Tệp preset quá lớn".into());
+            return Err("E:file_too_large".into());
         }
         let data: Export =
             serde_json::from_str(&fs::read_to_string(path).map_err(err)?).map_err(err)?;
         if !((data.format == "astrolight" && data.version == 2)
             || (data.format == "lucky65-studio" && data.version == 1))
         {
-            return Err("Không đúng định dạng preset".into());
+            return Err("E:preset_format".into());
         }
         let p = Preset {
             name: data.name,
@@ -237,7 +237,7 @@ fn read_keymap(store: &Store) -> Result<keymap::Keymap, String> {
         return Ok(keymap::Keymap::default());
     }
     if fs::metadata(&path).map_err(err)?.len() > 500_000 {
-        return Err("Keymap quá lớn".into());
+        return Err("E:file_too_large".into());
     }
     let map: keymap::Keymap = serde_json::from_slice(&fs::read(path).map_err(err)?).map_err(err)?;
     map.validate()?;
@@ -277,7 +277,7 @@ async fn apply_keymap(
     let result = tauri::async_runtime::spawn_blocking(move || {
         rx.recv_timeout(std::time::Duration::from_secs(15))
             .map_err(|_| {
-                "Chưa nhận kết quả ghi keymap. Không bấm ghi lại khi đang bận.".to_string()
+                "E:keymap_timeout".to_string()
             })?
     })
     .await
@@ -301,14 +301,14 @@ struct Workspace {
 }
 impl Workspace {
     fn validate(&self) -> Result<(), String> {
-        if self.format != "astrolight-workspace" || self.version != 3 {
-            return Err("Cần backup toàn bộ Astrolight v3".into());
+        if self.format != "astrolight-workspace" || !(3..=4).contains(&self.version) {
+            return Err("E:workspace_format".into());
         }
-        Scene::new(self.config.clone(), &protocol::keys())?;
+        Scene::new(self.config.clone(), protocol::keys())?;
         self.settings.validate()?;
         self.keymap.validate()?;
         if self.presets.len() > 100 {
-            return Err("Tối đa 100 preset".into());
+            return Err("E:too_many_presets".into());
         }
         for p in &self.presets {
             validate_preset(p)?
@@ -317,11 +317,11 @@ impl Workspace {
     }
 }
 #[tauri::command]
-async fn export_workspace(bundle: Workspace) -> Result<bool, String> {
+async fn export_workspace(bundle: Workspace, title: Option<String>) -> Result<bool, String> {
     bundle.validate()?;
     tauri::async_runtime::spawn_blocking(move || {
         let Some(path) = rfd::FileDialog::new()
-            .set_title("Xuất toàn bộ Astrolight")
+            .set_title(title.as_deref().unwrap_or("Export Astrolight backup"))
             .add_filter("JSON", &["json"])
             .set_file_name("astrolight-workspace.json")
             .save_file()
@@ -335,17 +335,17 @@ async fn export_workspace(bundle: Workspace) -> Result<bool, String> {
     .map_err(err)?
 }
 #[tauri::command]
-async fn import_workspace() -> Result<Option<Workspace>, String> {
-    tauri::async_runtime::spawn_blocking(|| {
+async fn import_workspace(title: Option<String>) -> Result<Option<Workspace>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
         let Some(path) = rfd::FileDialog::new()
-            .set_title("Nhập toàn bộ cài đặt")
+            .set_title(title.as_deref().unwrap_or("Import Astrolight backup"))
             .add_filter("JSON", &["json"])
             .pick_file()
         else {
             return Ok(None);
         };
         if fs::metadata(&path).map_err(err)?.len() > 2_000_000 {
-            return Err("Backup vượt 2 MB".into());
+            return Err("E:file_too_large".into());
         }
         let bundle: Workspace =
             serde_json::from_slice(&fs::read(path).map_err(err)?).map_err(err)?;
@@ -408,11 +408,11 @@ fn set_startup(enabled: bool) -> Result<bool, String> {
     Ok(system::startup_enabled())
 }
 #[tauri::command]
-async fn choose_exe() -> Result<Option<String>, String> {
-    tauri::async_runtime::spawn_blocking(|| {
+async fn choose_exe(title: Option<String>) -> Result<Option<String>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
         rfd::FileDialog::new()
-            .set_title("Chọn ứng dụng hoặc game")
-            .add_filter("Ứng dụng", &["exe"])
+            .set_title(title.as_deref().unwrap_or("Choose an app or game"))
+            .add_filter("EXE", &["exe"])
             .pick_file()
             .and_then(|p| p.file_name().map(|f| f.to_string_lossy().to_string()))
     })
@@ -461,7 +461,7 @@ fn main() {
             let config = fs::read(dir.join("settings.json"))
                 .ok()
                 .and_then(|b| serde_json::from_slice::<Config>(&b).ok())
-                .filter(|c| Scene::new(c.clone(), &protocol::keys()).is_ok())
+                .filter(|c| Scene::new(c.clone(), protocol::keys()).is_ok())
                 .unwrap_or_default();
             let options = fs::read(dir.join("options.json"))
                 .ok()
@@ -498,6 +498,7 @@ fn main() {
                 tauri::WindowEvent::Resized(_) | tauri::WindowEvent::Focused(_)
             ) {
                 let minimized = window.is_minimized().unwrap_or(false);
+                engine::MINIMIZED.store(minimized, std::sync::atomic::Ordering::Relaxed);
                 let _ = window.emit("window:minimized", minimized);
                 if let Some(view) = window.app_handle().get_webview_window("main") {
                     let _ = view.with_webview(move |platform| {

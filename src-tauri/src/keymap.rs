@@ -54,7 +54,7 @@ impl Keymap {
             || self.fn_mode > 1
             || self.macros.len() > 10
         {
-            return Err("Cần 3 layer, 71 vị trí và tối đa 10 macro".into());
+            return Err("E:keymap_shape".into());
         }
         let codes: Vec<serde_json::Value> =
             serde_json::from_str(include_str!("../../ui/keycodes.json")).unwrap();
@@ -66,7 +66,7 @@ impl Keymap {
                 || m.repeat > 1000
                 || m.steps.len() > 84
             {
-                return Err("Macro: tên 1–60 ký tự, lặp 1–1000, tối đa 84 sự kiện".into());
+                return Err("E:macro_limits".into());
             }
             let mut held = std::collections::HashSet::new();
             for s in &m.steps {
@@ -74,18 +74,18 @@ impl Keymap {
                     || s.delay > 32767
                     || !((4..=115).contains(&s.code) || (224..=231).contains(&s.code))
                 {
-                    return Err("Macro: phím HID tiêu chuẩn, delay 20–32767 ms".into());
+                    return Err("E:macro_step".into());
                 }
                 if s.down {
                     if !held.insert(s.code) {
-                        return Err("Macro nhấn lặp một phím chưa nhả".into());
+                        return Err("E:macro_repeat_press".into());
                     }
                 } else if !held.remove(&s.code) {
-                    return Err("Macro nhả phím chưa nhấn".into());
+                    return Err("E:macro_release".into());
                 }
             }
             if !held.is_empty() {
-                return Err("Macro phải nhả hết phím ở cuối".into());
+                return Err("E:macro_unbalanced".into());
             }
         }
         for b in self.layers.iter().flatten() {
@@ -96,7 +96,7 @@ impl Keymap {
                 "macro"
                     if b.macro_id < self.macros.len()
                         && !self.macros[b.macro_id].steps.is_empty() => {}
-                _ => return Err("Gán phím không hợp lệ hoặc macro đang trống".into()),
+                _ => return Err("E:bad_binding".into()),
             }
         }
         Ok(())

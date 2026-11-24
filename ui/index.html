@@ -1,16 +1,360 @@
-<!doctype html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Astrolight · Lucky65</title><link rel="stylesheet" href="style.css"></head><body class="booting" data-view="lighting">
-<div id="intro" class="intro" role="status"><div class="intro-art logo-art"><span class="orbit"></span><span class="star star-one">✦</span><img src="logo.svg" alt="Astrolight"><span class="star star-two">✧</span></div><div class="intro-copy"><span class="spinner"></span><span id="intro-status">Đang tìm Lucky65…</span></div><p>Một không gian. Mọi sắc màu.</p><button id="intro-skip">Vào studio</button></div>
-<aside class="sidebar"><div class="brand logo-art"><span class="orbit"></span><img src="logo.svg" alt="Astrolight"><span class="star star-one">✦</span><span class="star star-two">✧</span></div><span class="brand-caption">Keyboard studio</span><nav aria-label="Không gian làm việc"><button data-page="lighting" class="active"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>Ánh sáng</button><button data-page="remap"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h1m3 0h1m3 0h1m3 0h.1M6 13h1m3 0h1m3 0h1m3 0h.1M7 16h10"/></svg>Gán phím</button><button data-page="macros"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v18M16 3v18M3 8h18M3 16h18"/><circle cx="8" cy="8" r="3"/><circle cx="16" cy="16" r="3"/></svg>Macro</button><button data-page="profiles"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M14 17.5h7m-3.5-3.5v7"/></svg>Profile ứng dụng</button><button data-page="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg>Cài đặt</button></nav><div class="sidebar-bottom"><div class="device-pill"><span class="connection-dot" id="dot"></span>Lucky65 3M</div><p>Astrolight 3.2<br><span>USB controller</span></p></div></aside>
-<div class="app-shell"><header><div><span id="connection">Đang tìm Lucky65…</span><small id="active-profile">Mặc định</small></div><div class="header-actions"><button id="quick-play">Dừng</button><span id="caps-state" class="badge">Caps tắt</span><span id="native-fps" class="badge">USB</span><button id="connect">Kết nối</button></div></header><main><div class="heading"><div><h1 id="page-title">Ánh sáng</h1><p id="page-description">Tạo, xem trước và lưu ánh sáng của bạn.</p></div><div class="live-indicator"><span></span><span id="live-label">Studio</span></div></div>
-<div id="studio-workspace" class="studio-workspace"><section class="preview" aria-label="Bàn phím Lucky65"><div class="preview-bar"><div class="device-name"><strong>Lucky65</strong><span>3M / 65%</span></div><div id="layer-tabs" hidden><button data-layer="0" class="active" aria-pressed="true">Base</button><button data-layer="1" aria-pressed="false">Fn 1</button><button data-layer="2" aria-pressed="false">Fn 2</button></div><span id="preview-name">Xem trước trực tiếp</span><label>Bố cục <select id="layout"><option value="3">ANSI · Space dài</option><option value="2">ISO · Space dài</option><option value="1">ANSI · Space tách</option><option value="0">ISO · Space tách</option></select></label></div><div class="keyboard-scroll" tabindex="0" aria-label="Sơ đồ bàn phím, cuộn ngang khi cửa sổ hẹp"><div class="keyboard-wrap"><div id="keyboard" class="keyboard"><canvas id="lights" aria-hidden="true"></canvas></div></div></div><div class="preview-footer"><span id="keyhint">Chọn hiệu ứng bên dưới để trải nghiệm.</span><span id="frames">Đang khởi tạo…</span></div></section>
-<aside id="lighting-inspector" class="inspector" aria-label="Điều chỉnh ánh sáng"><div class="workbench"><section class="inspector-section"><div class="section-heading"><h2 id="effect-name">Sóng màu</h2><span id="mode-tag" class="badge">Wave</span></div><div class="colors"><label class="color-field"><input type="color" id="colorA"><span>Màu chính<input id="hexA" maxlength="7" aria-label="Mã màu chính"></span></label><button id="swap" aria-label="Đổi hai màu">⇄</button><label class="color-field"><input type="color" id="colorB"><span>Màu thứ hai<input id="hexB" maxlength="7" aria-label="Mã màu thứ hai"></span></label></div><div id="swatches" class="swatches"></div><div id="paint-tools" class="button-row" hidden><button id="fill">Tô hết</button><button id="wasd">WASD</button><button id="arrows">Mũi tên</button><button id="clear">Xóa màu</button></div><div class="sliders"><label>Độ sáng <output id="brightness-value"></output><input type="range" id="brightness" min="0" max="100"></label><label>Tốc độ <output id="speed-value"></output><input type="range" id="speed" min="1" max="100"></label><label>Độ rộng <output id="scale-value"></output><input type="range" id="scale" min="1" max="100"></label><label>Hướng <output id="angle-value"></output><input type="range" id="angle" min="-180" max="180"></label></div></section><section class="inspector-section playback"><h2>Phát trên bàn phím</h2><p>Tiếp tục phát khi thu nhỏ cửa sổ.</p><label class="inline-field">Tốc độ khung hình<select id="fps"><option value="30">30 FPS · Khuyên dùng</option><option value="15">15 FPS · Nhẹ nhất</option><option value="60">60 FPS · Tải USB cao hơn</option></select></label><div class="button-row"><button id="start" class="primary">▶ Phát hiệu ứng</button><button id="stop">Dừng</button></div><button id="static">Lưu màu tĩnh vào bàn phím</button><p class="hint">Ưu tiên gõ phím: giữ màu khi đang gõ hoặc giữ phím, phát tiếp sau khi nhả. Dừng giữ khung cuối. Hiệu ứng tùy chỉnh và Caps Lock cần app đang chạy.</p><details><summary>Hiệu ứng firmware</summary><div class="form-grid"><label>Hiệu ứng<select id="fw-effect"></select></label><label>Sáng<select id="fw-brightness"><option value="4">100%</option><option value="3">75%</option><option value="2">50%</option><option value="1">25%</option><option value="0">Tắt</option></select></label><label>Tốc độ<select id="fw-speed"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label></div><button id="fw-apply">Phát từ firmware</button><p class="hint">Chuyển quyền điều khiển cho firmware sẽ dừng profile ứng dụng và màu báo Caps.</p></details></section></div></aside><aside id="remap-inspector" class="inspector" hidden aria-label="Thông tin phím đang chọn"><div class="inspector-section"><div class="section-heading"><h2>Phím đang chọn</h2><span id="binding-type" class="badge">Chưa chọn</span></div><div class="selected-key-art" aria-hidden="true"><span id="selected-key-glyph">?</span><small id="selected-key-origin">Chọn một vị trí</small></div><h3 id="selected-key">Chọn phím trên bàn phím</h3><p id="binding-label">Bấm phím đích, rồi chọn chức năng mới.</p><label class="position-label">Vị trí vật lý<select id="key-position"><option value="-1">Chọn vị trí…</option></select></label><div class="selection-navigation"><button id="key-previous" aria-label="Chọn vị trí trước">← Trước</button><button id="key-next" aria-label="Chọn vị trí tiếp theo">Tiếp →</button></div></div>
-<div class="inspector-section"><h3>Tổ hợp phím</h3><p class="hint">Chọn modifier, rồi chọn phím chính trong thư viện.</p><fieldset id="modifier-options" class="modifier-row" disabled><legend class="sr-only">Modifier cho chức năng mới</legend><label><input type="checkbox" data-mod="1">Ctrl</label><label><input type="checkbox" data-mod="2">Shift</label><label><input type="checkbox" data-mod="4">Alt</label><label><input type="checkbox" data-mod="8">Win</label></fieldset><button id="key-default" class="full-width" disabled>Khôi phục phím đang chọn</button></div>
-<div class="inspector-section"><div class="section-heading"><h3>Phím đã tùy chỉnh</h3><span id="map-count" class="badge">0</span></div><div id="map-changes" class="map-changes"></div><details><summary>Tùy chọn layer</summary><label>Fn mặc định<select id="fn-mode"><option value="0">Fn 1</option><option value="1">Fn 2</option></select></label><button id="layer-reset">Đặt lại layer hiện tại</button><button id="map-reset" class="danger">Đặt lại cả ba layer</button><p class="hint">“Mặc định” giữ hành vi gốc của firmware. Không phải layer QMK.</p></details></div></aside><section id="page-lighting" class="page library-pane"><div class="section-heading"><div><h2>Thư viện hiệu ứng</h2><p>Chọn một hiệu ứng. Tinh chỉnh màu ở bảng bên cạnh.</p></div><button id="tour">▷ Duyệt hiệu ứng</button></div><div class="effect-tools"><input type="search" id="effect-search" placeholder="Tìm hiệu ứng…" aria-label="Tìm hiệu ứng"><div id="effect-filters" class="tabs" role="group" aria-label="Nhóm hiệu ứng"><button data-filter="all" class="active" aria-pressed="true">Tất cả</button><button data-filter="new" aria-pressed="false">Mới · 12</button><button data-filter="calm" aria-pressed="false">Thư giãn</button><button data-filter="geometry" aria-pressed="false">Hình học</button><button data-filter="energy" aria-pressed="false">Năng lượng</button><button data-filter="static" aria-pressed="false">Tĩnh</button></div><small id="effect-count" aria-live="polite">28 hiệu ứng</small></div><p id="effect-empty" class="empty" hidden>Không tìm thấy hiệu ứng. Thử tên khác hoặc chọn Tất cả.</p><div id="effects" class="effect-grid" tabindex="0" aria-label="Thư viện 28 hiệu ứng"></div><div class="panel"><div class="section-heading"><h2>Bộ sưu tập của bạn</h2><button id="import">Nhập preset đèn</button></div><div class="save-row"><label>Tên preset<input id="preset-name" value="Góc làm việc" maxlength="60"></label><button id="save" class="primary">Lưu preset</button><button id="export">Xuất preset</button><button id="delete">Xóa</button></div><div id="presets" class="preset-list"></div></div></section>
-<section id="page-remap" class="page library-pane" hidden>
-<div class="section-heading"><div><h2>Chọn chức năng</h2><p id="assignment-hint">Chọn vị trí trên bàn phím để bắt đầu.</p></div><span id="keycode-count" class="badge"></span></div>
-<div class="remap-toolbar"><div class="tabs" id="keycode-tabs" role="group" aria-label="Nhóm chức năng"><button data-group="Basic" class="active" aria-pressed="true">Cơ bản</button><button data-group="Media" aria-pressed="false">Media</button><button data-group="Mouse" aria-pressed="false">Chuột</button><button data-group="Special" aria-pressed="false">Fn / Đặc biệt</button><button data-group="Macro" aria-pressed="false">Macro</button></div><input id="key-search" type="search" placeholder="Tìm chức năng: âm lượng, Ctrl, F5…" aria-label="Tìm chức năng để gán"></div>
-<div id="keycodes" class="keycode-grid" aria-label="Các chức năng có thể gán"></div><div id="keycode-description" class="palette-description" aria-live="polite">Chọn chức năng để cập nhật bản nháp. Bàn phím thật chưa thay đổi.</div>
-</section><div id="remap-commit" class="remap-commit" hidden><div class="draft-state"><strong id="map-dirty" role="status">Bản nháp trên máy</strong><small id="map-device-state">Chưa đọc cấu hình từ bàn phím</small></div><div class="history-buttons"><button id="map-undo" disabled title="Hoàn tác (Ctrl+Z)">↶ Hoàn tác</button><button id="map-redo" disabled title="Làm lại (Ctrl+Shift+Z)">↷ Làm lại</button></div><div class="commit-actions"><button id="map-save">Lưu bản nháp</button><button id="map-apply" class="primary">Xem trước &amp; ghi…</button></div><p class="commit-note">Ghi sẽ thay thế cả 3 layer và macro bằng bản nháp này. App chưa đọc ngược cấu hình trong bàn phím.</p></div></div><section id="page-macros" class="page" hidden><div class="macro-workbench"><section class="panel"><div class="section-heading"><h2>Macro của bạn</h2><button id="macro-new">＋ Thêm</button></div><div id="macro-list" class="macro-list"></div><p class="hint">Tối đa 10 macro. Mỗi macro tối đa 84 sự kiện nhấn/nhả. Gán macro cho một phím ở tab Gán phím.</p></section><section class="panel"><div id="macro-empty" class="empty">Tạo macro đầu tiên để bắt đầu.</div><div id="macro-editor" hidden><div class="form-grid"><label>Tên<input id="macro-name" maxlength="60"></label><label>Số lần lặp<input id="macro-repeat" type="number" min="1" max="1000" value="1"></label></div><div class="record-row"><button id="record-start">● Ghi phím</button><button id="record-stop" disabled>Dừng ghi</button><button id="macro-add-step">＋ Nhấn/nhả phím</button><span id="macro-count" class="badge">0 / 84</span></div><div id="record-area" tabindex="0" class="record-area" role="textbox" aria-label="Vùng ghi macro">Bấm Ghi phím, rồi gõ trong vùng này. Bấm Dừng ghi để kết thúc.</div><div class="table-scroll"><table><thead><tr><th>#</th><th>Thao tác</th><th>Phím</th><th>Delay (ms)</th><th></th></tr></thead><tbody id="macro-steps"></tbody></table></div><div class="button-row"><button id="macro-save" class="primary">Lưu bản nháp</button><button id="macro-delete" class="danger">Xóa macro</button></div><p class="hint">Delay từ 20 đến 32767 ms. Nhấn và nhả phải cân bằng. Khi sẵn sàng, vào Gán phím và chọn “Xem trước &amp; ghi…”.</p></div></section></div></section>
-<section id="page-profiles" class="page" hidden><div class="panel"><div class="section-heading"><div><h2>Ánh sáng theo ứng dụng</h2><p>Tự đổi ánh sáng khi bạn chuyển app hoặc game.</p></div><label class="toggle"><input type="checkbox" id="auto-profiles">Tự chuyển</label></div><p id="foreground-info" class="hint"></p><div class="form-grid rule-form"><label>Tên profile<input id="rule-name" maxlength="60" placeholder="Buổi tối chơi game"></label><label>Ứng dụng (.exe)<div class="input-action"><input id="rule-exe" placeholder="game.exe"><button id="choose-exe" aria-label="Chọn file ứng dụng">…</button></div></label><label>Ánh sáng<select id="rule-preset"></select></label><button id="rule-add" class="primary">Thêm profile</button></div><div id="rules"></div><div class="button-row"><button id="rules-save" class="primary">Lưu profile ứng dụng</button></div><p class="hint">So khớp tên file .exe, không phân biệt hoa/thường. Rule ở trên được ưu tiên. Chỉ đọc tên tiến trình ở phía trước, không đọc nội dung cửa sổ. Mỗi rule giữ bản sao hiệu ứng lúc tạo.</p></div></section>
-<section id="page-settings" class="page" hidden><section class="panel"><h2>Ưu tiên bàn phím</h2><label class="check"><input type="checkbox" id="typing-priority"> Giữ màu LED khi gõ hoặc giữ phím</label><p class="hint">Bật mặc định. App tạm ngừng gửi RGB để ưu tiên nhả phím, rồi chuyển tiếp nhẹ sau 180 ms. Áp dụng cho cả game và khi thu nhỏ app.</p><label>Thử gõ<input id="typing-test" placeholder="Gõ hoặc giữ một phím rồi nhả để kiểm tra…" autocomplete="off" spellcheck="false"></label><p id="input-state" class="hint" role="status">Sẵn sàng</p></section><div class="settings-grid"><section class="panel"><h2>Mở màn trên bàn phím</h2><label class="switch-row"><span>Phát intro khi kết nối lần đầu</span><input type="checkbox" id="opt-intro"></label><div class="form-grid"><label>Hiệu ứng intro<select id="intro-mode"></select></label><label>Thời lượng (giây)<input id="intro-seconds" type="number" min="0.5" max="10" step="0.1"></label></div><label class="switch-row"><span>Tiếp tục phát profile sau intro</span><input type="checkbox" id="auto-play"></label><label class="switch-row"><span>Logo chuyển động lặp</span><input type="checkbox" id="logo-motion"></label><p class="hint">Intro phát trước khi chuyển mượt về profile. Kết nối lại trong cùng phiên không lặp intro.</p></section><section class="panel"><h2>Màu báo Caps Lock</h2><label class="switch-row"><span>Bật đèn trạng thái Caps Lock</span><input type="checkbox" id="caps-enabled"></label><div class="colors"><label class="color-field"><input type="color" id="caps-on"><span>Khi bật</span></label><label class="color-field"><input type="color" id="caps-off"><span>Khi tắt</span></label></div><label class="switch-row"><span>Khi tắt, dùng màu của hiệu ứng</span><input type="checkbox" id="caps-off-base"></label><p id="caps-help" class="hint">Áp dụng lên vị trí Caps vật lý trong chế độ đèn tùy chỉnh. Theo trạng thái Caps Lock của Windows.</p></section><section class="panel"><h2>Khởi động cùng Windows</h2><label class="switch-row"><span>Mở Astrolight khi đăng nhập</span><input type="checkbox" id="startup"></label><p class="hint">Áp dụng ngay cho tài khoản hiện tại. Giữ EXE ở vị trí cố định sau khi bật.</p></section><section class="panel"><h2>Backup toàn bộ bàn phím</h2><p>Ánh sáng, preset, profile ứng dụng, remap, macro và tùy chọn intro/Caps.</p><div class="button-row"><button id="workspace-export">Xuất cài đặt</button><button id="workspace-import">Nhập cài đặt</button></div><p class="hint">Nhập có bản xem trước. Remap/macro chỉ ghi xuống bàn phím khi bạn chọn ghi. Startup là tùy chọn riêng của máy.</p></section></div><button id="options-save" class="primary">Lưu tùy chọn</button></section>
-<div id="notice" role="status" aria-live="polite">Đang khởi tạo…</div></main></div><dialog id="confirm-dialog"><h2 id="confirm-title"></h2><p id="confirm-copy"></p><div id="confirm-details"></div><div class="button-row"><button id="confirm-cancel">Hủy</button><button id="confirm-accept" class="primary">Tiếp tục</button></div></dialog><script src="effects.js"></script><script src="renderer.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Astrolight · Lucky65</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="booting" data-view="lighting" data-scope="board">
+
+<div id="intro" class="intro" role="status">
+  <img src="logo.svg" alt="Astrolight">
+  <p id="intro-status" data-i18n="intro.searching"></p>
+  <button id="intro-skip" data-i18n="intro.skip"></button>
+</div>
+
+<aside class="rail">
+  <div class="brand"><img src="logo.svg" alt="Astrolight"></div>
+  <nav data-i18n-attr="aria-label:nav.label">
+    <button data-page="lighting" class="active"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><span data-i18n="nav.lighting"></span></button>
+    <button data-page="remap"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h1m3 0h1m3 0h1m3 0h.1M6 13h1m3 0h1m3 0h1m3 0h.1M7 16h10"/></svg><span data-i18n="nav.remap"></span></button>
+    <button data-page="macros"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M4 12h16M4 17h7"/><circle cx="18" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg><span data-i18n="nav.macros"></span></button>
+    <button data-page="profiles"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M14 17.5h7m-3.5-3.5v7"/></svg><span data-i18n="nav.profiles"></span></button>
+    <button data-page="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></svg><span data-i18n="nav.settings"></span></button>
+  </nav>
+  <div class="rail-foot">
+    <div class="device"><span class="dot" id="dot"></span><div><strong>Lucky65 3M</strong><small id="connection"></small></div></div>
+    <label class="lang"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg><select id="language-quick" data-i18n-attr="aria-label:settings.language"></select></label>
+    <small class="version">Astrolight 3.3</small>
+  </div>
+</aside>
+
+<div class="shell">
+<header class="topbar">
+  <div class="title"><h1 id="page-title"></h1><p id="page-description"></p></div>
+  <div class="topbar-actions">
+    <span id="active-profile" class="chip"></span>
+    <span id="caps-state" class="chip" hidden></span>
+    <span id="native-fps" class="chip"></span>
+    <button id="quick-play" class="primary"></button>
+    <button id="connect"></button>
+  </div>
+</header>
+
+<main>
+<div id="studio" class="studio">
+  <div class="studio-main">
+    <section class="stage" data-i18n-attr="aria-label:stage.label">
+      <div class="stage-bar">
+        <div id="scope-tabs" class="segmented" role="group" data-i18n-attr="aria-label:scope.label">
+          <button data-scope="board" class="active" aria-pressed="true" data-i18n="scope.board"></button>
+          <button data-scope="keys" aria-pressed="false" data-i18n="scope.keys"></button>
+        </div>
+        <div id="layer-tabs" class="segmented" role="group" hidden>
+          <button data-layer="0" class="active" aria-pressed="true">Base</button>
+          <button data-layer="1" aria-pressed="false">Fn 1</button>
+          <button data-layer="2" aria-pressed="false">Fn 2</button>
+        </div>
+        <span class="live" id="live"><i></i><span id="live-label"></span></span>
+        <label class="inline"><span data-i18n="stage.layout"></span>
+          <select id="layout">
+            <option value="3" data-i18n="layout.3"></option>
+            <option value="2" data-i18n="layout.2"></option>
+            <option value="1" data-i18n="layout.1"></option>
+            <option value="0" data-i18n="layout.0"></option>
+          </select>
+        </label>
+      </div>
+      <div class="keyboard-scroll" tabindex="-1">
+        <div class="keyboard-wrap"><div id="keyboard" class="keyboard"><canvas id="lights" aria-hidden="true"></canvas></div></div>
+      </div>
+      <div id="select-tools" class="chips" hidden>
+        <button data-select="all" data-i18n="select.all"></button>
+        <button data-select="letters" data-i18n="select.letters"></button>
+        <button data-select="numbers" data-i18n="select.numbers"></button>
+        <button data-select="wasd">WASD</button>
+        <button data-select="arrows" data-i18n="select.arrows"></button>
+        <button data-select="mods" data-i18n="select.mods"></button>
+        <button data-select="custom" data-i18n="select.custom"></button>
+        <button data-select="invert" data-i18n="select.invert"></button>
+        <button data-select="none" data-i18n="select.none"></button>
+      </div>
+      <div class="stage-foot"><span id="keyhint"></span><span id="frames"></span></div>
+    </section>
+
+    <section id="page-lighting" class="page">
+      <div class="section-head">
+        <div><h2 data-i18n="library.title"></h2><p id="library-hint"></p></div>
+        <button id="tour"></button>
+      </div>
+      <div class="library-tools">
+        <input type="search" id="effect-search" data-i18n-attr="placeholder:library.search;aria-label:library.search">
+        <div id="effect-filters" class="chips" role="group" data-i18n-attr="aria-label:library.filters">
+          <button data-filter="all" class="active" aria-pressed="true" data-i18n="filter.all"></button>
+          <button data-filter="new" aria-pressed="false" data-i18n="filter.new"></button>
+          <button data-filter="reactive" aria-pressed="false" data-i18n="filter.reactive"></button>
+          <button data-filter="calm" aria-pressed="false" data-i18n="filter.calm"></button>
+          <button data-filter="geometry" aria-pressed="false" data-i18n="filter.geometry"></button>
+          <button data-filter="energy" aria-pressed="false" data-i18n="filter.energy"></button>
+          <button data-filter="static" aria-pressed="false" data-i18n="filter.static"></button>
+        </div>
+        <small id="effect-count" aria-live="polite"></small>
+      </div>
+      <p id="effect-empty" class="empty" hidden data-i18n="library.empty"></p>
+      <div id="effects" class="effect-grid"></div>
+
+      <div class="panel presets">
+        <div class="section-head"><div><h2 data-i18n="presets.title"></h2><p data-i18n="presets.hint"></p></div><button id="import" data-i18n="presets.import"></button></div>
+        <div class="save-row">
+          <label><span data-i18n="presets.name"></span><input id="preset-name" maxlength="60"></label>
+          <button id="save" class="primary" data-i18n="presets.save"></button>
+          <button id="export" data-i18n="presets.export"></button>
+          <button id="delete" data-i18n="presets.delete"></button>
+        </div>
+        <div id="presets" class="preset-list"></div>
+      </div>
+    </section>
+
+    <section id="page-remap" class="page" hidden>
+      <div class="section-head">
+        <div><h2 data-i18n="remap.pick"></h2><p id="assignment-hint"></p></div>
+        <span id="keycode-count" class="chip"></span>
+      </div>
+      <div class="library-tools">
+        <div class="chips" id="keycode-tabs" role="group" data-i18n-attr="aria-label:remap.groups">
+          <button data-group="Basic" class="active" aria-pressed="true" data-i18n="group.Basic"></button>
+          <button data-group="Media" aria-pressed="false" data-i18n="group.Media"></button>
+          <button data-group="Mouse" aria-pressed="false" data-i18n="group.Mouse"></button>
+          <button data-group="Special" aria-pressed="false" data-i18n="group.Special"></button>
+          <button data-group="Macro" aria-pressed="false" data-i18n="group.Macro"></button>
+        </div>
+        <input id="key-search" type="search" data-i18n-attr="placeholder:remap.search;aria-label:remap.search">
+      </div>
+      <div id="keycodes" class="keycode-grid"></div>
+      <p id="keycode-description" class="hint" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <aside id="lighting-inspector" class="inspector" data-i18n-attr="aria-label:inspector.label">
+    <section>
+      <div class="section-head tight"><h2 id="effect-name"></h2><span id="mode-tag" class="chip"></span></div>
+      <p id="selection-summary" class="hint keys-only"></p>
+      <div class="colors">
+        <label class="color"><input type="color" id="colorA"><span><span data-i18n="color.a"></span><input id="hexA" maxlength="7" spellcheck="false" data-i18n-attr="aria-label:color.aHex"></span></label>
+        <button id="swap" class="icon" data-i18n-attr="aria-label:color.swap;title:color.swap">⇄</button>
+        <label class="color"><input type="color" id="colorB"><span><span data-i18n="color.b"></span><input id="hexB" maxlength="7" spellcheck="false" data-i18n-attr="aria-label:color.bHex"></span></label>
+      </div>
+      <div id="swatches" class="swatches"></div>
+      <div id="paint-tools" class="button-row board-only" hidden>
+        <button id="fill" data-i18n="paint.fill"></button>
+        <button id="wasd">WASD</button>
+        <button id="arrows" data-i18n="select.arrows"></button>
+        <button id="clear" data-i18n="paint.clear"></button>
+      </div>
+      <div class="sliders">
+        <label class="board-only"><span data-i18n="slider.brightness"></span><output id="brightness-value"></output><input type="range" id="brightness" min="0" max="100"></label>
+        <label><span data-i18n="slider.speed"></span><output id="speed-value"></output><input type="range" id="speed" min="1" max="100"></label>
+        <label class="board-only"><span data-i18n="slider.scale"></span><output id="scale-value"></output><input type="range" id="scale" min="1" max="100"></label>
+        <label class="board-only"><span data-i18n="slider.angle"></span><output id="angle-value"></output><input type="range" id="angle" min="-180" max="180"></label>
+      </div>
+      <div class="button-col keys-only">
+        <button id="key-follow" data-i18n="keys.followAction"></button>
+        <button id="key-clear-all" class="quiet" data-i18n="keys.clearAll"></button>
+      </div>
+      <p id="reactive-hint" class="hint" hidden data-i18n="reactive.hint"></p>
+    </section>
+    <section>
+      <h2 data-i18n="play.title"></h2>
+      <label class="field"><span data-i18n="play.fps"></span>
+        <select id="fps">
+          <option value="30" data-i18n="fps.30"></option>
+          <option value="15" data-i18n="fps.15"></option>
+          <option value="60" data-i18n="fps.60"></option>
+        </select>
+      </label>
+      <div class="button-row">
+        <button id="start" class="primary" data-i18n="play.start"></button>
+        <button id="stop" data-i18n="play.stop"></button>
+      </div>
+      <button id="static" class="wide" data-i18n="play.static"></button>
+      <p class="hint" data-i18n="play.hint"></p>
+      <details>
+        <summary data-i18n="fw.title"></summary>
+        <div class="form-grid">
+          <label class="span"><span data-i18n="fw.effect"></span><select id="fw-effect"></select></label>
+          <label><span data-i18n="fw.brightness"></span><select id="fw-brightness"><option value="4">100%</option><option value="3">75%</option><option value="2">50%</option><option value="1">25%</option><option value="0" data-i18n="fw.off"></option></select></label>
+          <label><span data-i18n="slider.speed"></span><select id="fw-speed"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label>
+        </div>
+        <button id="fw-apply" class="wide" data-i18n="fw.apply"></button>
+        <p class="hint" data-i18n="fw.hint"></p>
+      </details>
+    </section>
+  </aside>
+
+  <aside id="remap-inspector" class="inspector" hidden data-i18n-attr="aria-label:remap.inspector">
+    <section>
+      <div class="section-head tight"><h2 data-i18n="remap.selected"></h2><span id="binding-type" class="chip"></span></div>
+      <div class="keycap-art" aria-hidden="true"><span id="selected-key-glyph">?</span><small id="selected-key-origin"></small></div>
+      <h3 id="selected-key"></h3>
+      <p id="binding-label" class="hint"></p>
+      <label class="field"><span data-i18n="remap.position"></span><select id="key-position"></select></label>
+      <div class="button-row">
+        <button id="key-previous" data-i18n="remap.prev"></button>
+        <button id="key-next" data-i18n="remap.next"></button>
+      </div>
+    </section>
+    <section>
+      <h3 data-i18n="remap.combo"></h3>
+      <p class="hint" data-i18n="remap.comboHint"></p>
+      <fieldset id="modifier-options" class="modifiers" disabled>
+        <legend class="sr-only" data-i18n="remap.combo"></legend>
+        <label><input type="checkbox" data-mod="1">Ctrl</label>
+        <label><input type="checkbox" data-mod="2">Shift</label>
+        <label><input type="checkbox" data-mod="4">Alt</label>
+        <label><input type="checkbox" data-mod="8">Win</label>
+      </fieldset>
+      <button id="key-default" class="wide" disabled data-i18n="remap.restore"></button>
+    </section>
+    <section>
+      <div class="section-head tight"><h3 data-i18n="remap.customized"></h3><span id="map-count" class="chip">0</span></div>
+      <div id="map-changes" class="map-changes"></div>
+      <details>
+        <summary data-i18n="remap.layerOptions"></summary>
+        <label class="field"><span data-i18n="remap.fnDefault"></span><select id="fn-mode"><option value="0">Fn 1</option><option value="1">Fn 2</option></select></label>
+        <button id="layer-reset" class="wide" data-i18n="remap.resetLayer"></button>
+        <button id="map-reset" class="wide danger" data-i18n="remap.resetAll"></button>
+        <p class="hint" data-i18n="remap.defaultHint"></p>
+      </details>
+    </section>
+  </aside>
+
+  <div id="remap-commit" class="commit" hidden>
+    <div class="draft-state"><strong id="map-dirty" role="status"></strong><small id="map-device-state"></small></div>
+    <div class="button-row">
+      <button id="map-undo" disabled data-i18n="remap.undo" data-i18n-attr="title:remap.undoTitle"></button>
+      <button id="map-redo" disabled data-i18n="remap.redo" data-i18n-attr="title:remap.redoTitle"></button>
+    </div>
+    <div class="button-row">
+      <button id="map-save" data-i18n="remap.save"></button>
+      <button id="map-apply" class="primary" data-i18n="remap.apply"></button>
+    </div>
+    <p class="hint" data-i18n="remap.commitNote"></p>
+  </div>
+</div>
+
+<section id="page-macros" class="page" hidden>
+  <div class="macro-workbench">
+    <section class="panel">
+      <div class="section-head"><h2 data-i18n="macro.yours"></h2><button id="macro-new" data-i18n="macro.add"></button></div>
+      <div id="macro-list" class="macro-list"></div>
+      <p class="hint" data-i18n="macro.limits"></p>
+    </section>
+    <section class="panel">
+      <div id="macro-empty" class="empty" data-i18n="macro.empty"></div>
+      <div id="macro-editor" hidden>
+        <div class="form-grid">
+          <label><span data-i18n="macro.name"></span><input id="macro-name" maxlength="60"></label>
+          <label><span data-i18n="macro.repeat"></span><input id="macro-repeat" type="number" min="1" max="1000" value="1"></label>
+        </div>
+        <div class="button-row record-row">
+          <button id="record-start" data-i18n="macro.record"></button>
+          <button id="record-stop" disabled data-i18n="macro.recordStop"></button>
+          <button id="macro-add-step" data-i18n="macro.addStep"></button>
+          <span id="macro-count" class="chip">0 / 84</span>
+        </div>
+        <div id="record-area" tabindex="0" class="record-area" role="textbox" data-i18n-attr="aria-label:macro.recordArea"></div>
+        <div class="table-scroll"><table>
+          <thead><tr><th>#</th><th data-i18n="macro.action"></th><th data-i18n="macro.key"></th><th data-i18n="macro.delay"></th><th></th></tr></thead>
+          <tbody id="macro-steps"></tbody>
+        </table></div>
+        <div class="button-row">
+          <button id="macro-save" class="primary" data-i18n="remap.save"></button>
+          <button id="macro-delete" class="danger" data-i18n="macro.delete"></button>
+        </div>
+        <p class="hint" data-i18n="macro.hint"></p>
+      </div>
+    </section>
+  </div>
+</section>
+
+<section id="page-profiles" class="page" hidden>
+  <div class="panel">
+    <div class="section-head">
+      <div><h2 data-i18n="profiles.title"></h2><p id="foreground-info"></p></div>
+      <label class="switch"><span data-i18n="profiles.auto"></span><input type="checkbox" id="auto-profiles"></label>
+    </div>
+    <div class="form-grid rule-form">
+      <label><span data-i18n="profiles.name"></span><input id="rule-name" maxlength="60" data-i18n-attr="placeholder:profiles.namePlaceholder"></label>
+      <label><span data-i18n="profiles.exe"></span><span class="input-action"><input id="rule-exe" placeholder="game.exe" spellcheck="false"><button id="choose-exe" data-i18n-attr="aria-label:profiles.browse;title:profiles.browse">…</button></span></label>
+      <label><span data-i18n="profiles.lighting"></span><select id="rule-preset"></select></label>
+      <button id="rule-add" class="primary" data-i18n="profiles.add"></button>
+    </div>
+    <div id="rules" class="rules"></div>
+    <p class="hint" data-i18n="profiles.hint"></p>
+  </div>
+</section>
+
+<section id="page-settings" class="page" hidden>
+  <div class="settings-grid">
+    <section class="panel">
+      <h2 data-i18n="settings.general"></h2>
+      <label class="switch"><span data-i18n="settings.language"></span><select id="language"></select></label>
+      <label class="switch"><span data-i18n="settings.startup"></span><input type="checkbox" id="startup"></label>
+      <label class="switch"><span data-i18n="settings.logoMotion"></span><input type="checkbox" id="logo-motion"></label>
+      <p class="hint" data-i18n="settings.startupHint"></p>
+    </section>
+    <section class="panel">
+      <h2 data-i18n="settings.priority"></h2>
+      <label class="switch"><span data-i18n="settings.priorityToggle"></span><input type="checkbox" id="typing-priority"></label>
+      <p class="hint" data-i18n="settings.priorityHint"></p>
+      <label class="field"><span data-i18n="settings.typingTest"></span><input id="typing-test" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:settings.typingPlaceholder"></label>
+      <p id="input-state" class="hint" role="status"></p>
+    </section>
+    <section class="panel">
+      <h2 data-i18n="settings.intro"></h2>
+      <label class="switch"><span data-i18n="settings.introToggle"></span><input type="checkbox" id="opt-intro"></label>
+      <div class="form-grid">
+        <label><span data-i18n="settings.introEffect"></span><select id="intro-mode"></select></label>
+        <label><span data-i18n="settings.introSeconds"></span><input id="intro-seconds" type="number" min="0.5" max="10" step="0.1"></label>
+      </div>
+      <label class="switch"><span data-i18n="settings.autoPlay"></span><input type="checkbox" id="auto-play"></label>
+      <p class="hint" data-i18n="settings.introHint"></p>
+    </section>
+    <section class="panel">
+      <h2 data-i18n="settings.caps"></h2>
+      <label class="switch"><span data-i18n="settings.capsToggle"></span><input type="checkbox" id="caps-enabled"></label>
+      <div class="colors plain">
+        <label class="color"><input type="color" id="caps-on"><span data-i18n="settings.capsOn"></span></label>
+        <label class="color"><input type="color" id="caps-off"><span data-i18n="settings.capsOff"></span></label>
+      </div>
+      <label class="switch"><span data-i18n="settings.capsBase"></span><input type="checkbox" id="caps-off-base"></label>
+      <p class="hint" data-i18n="settings.capsHint"></p>
+    </section>
+    <section class="panel">
+      <h2 data-i18n="settings.backup"></h2>
+      <p data-i18n="settings.backupCopy"></p>
+      <div class="button-row">
+        <button id="workspace-export" data-i18n="settings.export"></button>
+        <button id="workspace-import" data-i18n="settings.import"></button>
+      </div>
+      <p class="hint" data-i18n="settings.backupHint"></p>
+    </section>
+  </div>
+</section>
+</main>
+</div>
+
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+<dialog id="confirm-dialog">
+  <h2 id="confirm-title"></h2>
+  <p id="confirm-copy"></p>
+  <div id="confirm-details"></div>
+  <div class="button-row end"><button id="confirm-cancel" data-i18n="common.cancel"></button><button id="confirm-accept" class="primary"></button></div>
+</dialog>
+
+<script src="i18n.js"></script>
+<script src="effects.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -41,7 +41,7 @@ impl Keyboard {
                     && d.usage_page() == 0xff02
                     && d.usage() == 1
             })
-            .ok_or("Chưa thấy Lucky65 USB. Kiểm tra cáp và chế độ có dây.")?;
+            .ok_or("E:not_found")?;
         let group = target
             .path()
             .to_string_lossy()
@@ -63,7 +63,7 @@ impl Keyboard {
                             .to_lowercase()
                             .starts_with(&group)
                 })
-                .ok_or("Thiếu HID collection của Lucky65")?;
+                .ok_or("E:missing_collection")?;
             d.open_device(&api).map_err(|e| e.to_string())
         };
         Ok(Self {
@@ -87,7 +87,7 @@ impl Keyboard {
             }
             let n = self.output.write(p).map_err(|e| e.to_string())?;
             if n != 64 {
-                return Err(format!("HID gửi thiếu: {n}/64 byte"));
+                return Err(format!("E:short_write:{n}/64"));
             }
         }
         Ok(())

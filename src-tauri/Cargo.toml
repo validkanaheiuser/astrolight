@@ -1,6 +1,6 @@
 [package]
 name = "astrolight"
-version = "3.2.0"
+version = "3.3.0"
 description = "Astrolight — smooth Lucky65 RGB studio"
 edition = "2021"
 default-run = "astrolight"

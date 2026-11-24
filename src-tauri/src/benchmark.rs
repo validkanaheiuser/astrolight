@@ -34,7 +34,7 @@ fn main() {
             intervals.push(t.duration_since(last).as_secs_f64() * 1000.);
             last = t;
             device
-                .send_frame(&scene.frame(start.elapsed().as_secs_f64() * 0.7), &k, 0)
+                .send_frame(&scene.frame(start.elapsed().as_secs_f64() * 0.7, 0., &[]), k, 0)
                 .expect("write RGB");
             samples.push(t.elapsed().as_secs_f64() * 1000.);
             let period = Duration::from_secs_f64(1. / fps as f64);

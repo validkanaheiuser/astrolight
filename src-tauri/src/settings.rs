@@ -15,6 +15,8 @@ pub struct Settings {
     pub auto_profiles: bool,
     pub rules: Vec<Rule>,
     pub logo_motion: bool,
+    /// UI language tag. Unknown tags fall back to English in the interface.
+    pub language: String,
 }
 impl Default for Settings {
     fn default() -> Self {
@@ -31,6 +33,7 @@ impl Default for Settings {
             auto_profiles: false,
             rules: vec![],
             logo_motion: true,
+            language: "en".into(),
         }
     }
 }
@@ -47,19 +50,21 @@ impl Settings {
         if !self.intro_seconds.is_finite()
             || !(0.5..=10.).contains(&self.intro_seconds)
             || self.rules.len() > 50
+            || self.language.len() > 12
         {
-            return Err("Intro 0,5–10 giây; tối đa 50 rule ứng dụng".into());
+            return Err("E:bad_options".into());
         }
         crate::effects::rgb(&self.caps_on)?;
         crate::effects::rgb(&self.caps_off)?;
         let mut c = Config::default();
         c.mode = self.intro_mode.clone();
-        Scene::new(c, &crate::protocol::keys())?;
+        c.per_key.clear();
+        Scene::new(c, crate::protocol::keys())?;
         for r in &self.rules {
             if r.name.trim().is_empty() || r.name.chars().count() > 60 || !valid_exe(&r.exe) {
-                return Err("Rule cần tên và tên file .exe (không phải đường dẫn)".into());
+                return Err("E:bad_rule".into());
             }
-            Scene::new(r.config.clone(), &crate::protocol::keys())?;
+            Scene::new(r.config.clone(), crate::protocol::keys())?;
         }
         Ok(())
     }
@@ -85,6 +90,7 @@ mod tests {
     fn legacy_options_enable_input_priority() {
         let old: Settings = serde_json::from_str("{}").unwrap();
         assert!(old.typing_priority);
+        assert_eq!(old.language, "en");
         let explicit: Settings = serde_json::from_str(r#"{"typingPriority":false}"#).unwrap();
         assert!(!explicit.typing_priority);
     }

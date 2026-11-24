@@ -1,4 +1,15 @@
-# Astrolight 3.2 — Lucky65 Studio
+# Astrolight 3.3 — Lucky65 Studio
+
+## Mới trong 3.3
+
+- **Giao diện mới:** bàn phím là trung tâm, đèn LED hắt sáng qua khe phím và chữ trên phím; thư viện hiệu ứng có ảnh xem trước thật, chuyển động khi rê chuột. Cài đặt và profile ứng dụng tự lưu ngay khi thay đổi, không còn nút Lưu tùy chọn.
+- **Đa ngôn ngữ:** English (mặc định), Tiếng Việt, 简体中文. Đổi ở thanh bên hoặc trong Cài đặt.
+- **52 hiệu ứng:** thêm 18 hiệu ứng (xoay phổ màu, lăng kính, lốc xoáy, kính vạn hoa, hoa nở, mưa số, tia chớp, bóng nảy, đèn chạy, khảm màu, cuộn xoáy, zíc zắc, đèn dung nham, ánh nến, đèn chớp, cột nhạc, rắn săn mồi, lấp lánh) và 6 hiệu ứng theo phím bấm (chớp sáng, tỏa sáng, gợn sóng, chữ thập, bản đồ nhiệt, cầu vồng lan tỏa).
+- **Hiệu ứng từng phím:** chuyển sang **Từng phím**, chọn phím (bấm, kéo, hoặc bộ chọn nhanh), rồi chọn hiệu ứng, màu và tốc độ riêng cho các phím đó. Phần còn lại giữ hiệu ứng của bàn phím.
+- **Hiệu năng:** không gửi khung USB khi không có LED nào đổi màu; sơ đồ phím chỉ đọc một lần; bản xem trước dừng hẳn khi không cần vẽ; không gửi trạng thái sang giao diện khi thu nhỏ.
+- **Caps Lock:** đọc trạng thái thật từ Windows ở mỗi khung hình thay vì dự đoán trong keyboard hook, và tùy chọn có hiệu lực ngay khi bật.
+
+Các mục bên dưới mô tả bản 3.2; tên nút trong app thay đổi theo ngôn ngữ đang chọn.
 
 Ứng dụng Windows viết bằng **Tauri + Rust**, UI HTML/CSS/Canvas thuần. Không đóng gói Node.js/Chromium; sử dụng WebView2 của Windows. Toàn bộ UI và logo nằm trong EXE.
 
@@ -87,7 +98,7 @@ cargo run --locked --bin astrolight
 cargo run --locked --release --bin hid-benchmark -- --write-rgb --seconds 10
 ```
 
-Các tệp chính: `effects.rs` (28 hiệu ứng), `engine.rs` (lịch RGB/intro/profile/Caps), `keymap.rs` (remap/macro), `system.rs` (Windows), `settings.rs` (tùy chọn/rule), `main.rs` (IPC và lưu trữ), `ui/renderer.js` (UI), `ui/effects.js` (preview). `PROTOCOL-v3.md` ghi chi tiết giao thức.
+Các tệp chính: `effects.rs` (52 hiệu ứng), `engine.rs` (lịch RGB/intro/profile/Caps), `keymap.rs` (remap/macro), `system.rs` (Windows), `settings.rs` (tùy chọn/rule), `main.rs` (IPC và lưu trữ), `ui/app.js` (UI), `ui/i18n.js` (ngôn ngữ), `ui/effects.js` (preview). `PROTOCOL-v3.md` ghi chi tiết giao thức.
 
 ## Giới hạn
 

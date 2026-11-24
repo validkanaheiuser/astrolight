@@ -2,6 +2,29 @@
 
 Notable changes to Astrolight are recorded here. Version 3.2.0 is the first public GitHub release. Earlier entries describe local development milestones, not previously published GitHub releases.
 
+## [3.3.0] — 2026-11-24
+
+### Added
+- Per-key effects: any key or group of keys can run its own effect, colors and speed on top of the keyboard-wide effect. Stored in presets, app profiles and backups.
+- 24 new effects (52 in total): spectrum cycle, prism, vortex, kaleidoscope, bloom, digital rain, lightning, bouncing ball, marquee, mosaic, swirl, zigzag, lava lamp, candlelight, strobe, equalizer, snake, sparkle, and six reactive effects (key pulse, glow, ripple, cross, typing heatmap, rainbow splash).
+- Interface languages: English (now the default), Vietnamese and Simplified Chinese. The backend reports errors as codes that the interface translates.
+- `scripts/check-i18n.cjs` verifies that every string exists in every language.
+
+### Changed
+- Rebuilt the interface: backlit keyboard preview with light spill and shine-through legends, live effect thumbnails, a calmer layout, toasts instead of a status bar. `ui/renderer.js` became the readable `ui/app.js`.
+- Settings and app profiles save on change; the separate save buttons are gone.
+- Caps Lock state is read from Windows each frame instead of being predicted inside the keyboard hook.
+- Backups are written as version 4; version 3 backups still import. Files with per-key effects do not load in 3.2.
+
+### Performance
+- USB frames identical to the one already on the LEDs are not sent.
+- The embedded keyboard map is parsed once instead of on every lighting update.
+- The preview stops its animation loop when nothing moves, is capped at 60 FPS and only rewrites status text that changed; routine status events are not sent to a minimized window.
+
+### Verification and limits
+- 26 Rust tests; 624 JavaScript/Rust parity cases over 52 modes, including per-key effects and key presses (132,912 channels, maximum difference 0); 12 offline UI scenarios in Microsoft Edge.
+- 3.3 has not yet been run against the physical keyboard: per-key and reactive lighting, frame skipping and the Caps Lock change are verified in tests and the preview only. Earlier limits (no keymap readback, wired USB only) still apply.
+
 ## [3.2.0] — 2026-11-16
 
 ### Added

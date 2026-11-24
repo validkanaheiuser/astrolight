@@ -17,11 +17,64 @@ pub fn typing_active() -> bool {
     INPUT.reconcile(now, |key| unsafe { GetAsyncKeyState(key as i32) < 0 });
     INPUT.busy(now)
 }
-static CAPS: AtomicBool = AtomicBool::new(false);
-static CAPS_HELD: AtomicBool = AtomicBool::new(false);
+// Reactive lighting: a counter per virtual key, bumped on each fresh press (not on
+// auto-repeat). Counters only; nothing about order or timing is kept.
+static PRESSES: [std::sync::atomic::AtomicU32; 256] =
+    [const { std::sync::atomic::AtomicU32::new(0) }; 256];
+static DOWN: [AtomicBool; 256] = [const { AtomicBool::new(false) }; 256];
+pub fn press_count(vk: usize) -> u32 {
+    PRESSES[vk & 255].load(Ordering::Relaxed)
+}
+/// Virtual-key code to `keyboard.json` ids. Space and backslash exist at more than one
+/// position depending on the layout; the caller keeps whichever are present.
+pub fn vk_key_ids(vk: usize) -> &'static [&'static str] {
+    const LETTERS: [&str; 26] = [
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r",
+        "s", "t", "u", "v", "w", "x", "y", "z",
+    ];
+    const DIGITS: [&str; 10] = ["n0", "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9"];
+    match vk {
+        0x41..=0x5A => std::slice::from_ref(&LETTERS[vk - 0x41]),
+        0x30..=0x39 => std::slice::from_ref(&DIGITS[vk - 0x30]),
+        0x1B => &["esc"],
+        0xBD => &["minus"],
+        0xBB => &["plus"],
+        0x08 => &["bksp"],
+        0x2D => &["Insert"],
+        0x09 => &["tab"],
+        0xDB => &["lqu"],
+        0xDD => &["rqu"],
+        0xDC => &["k29", "k42"],
+        0x2E => &["delete"],
+        0x14 => &["caps"],
+        0xBA => &["sem"],
+        0xDE => &["quo"],
+        0x0D => &["enter"],
+        0x21 => &["pageup"],
+        0x22 => &["pagedown"],
+        0xA0 | 0x10 => &["lshift"],
+        0xA1 => &["rshift"],
+        0xBC => &["comma"],
+        0xBE => &["dot"],
+        0xBF => &["qmark"],
+        0x26 => &["up"],
+        0x25 => &["left"],
+        0x28 => &["down"],
+        0x27 => &["right"],
+        0xA2 | 0x11 => &["lctrl"],
+        0xA3 => &["rctrl"],
+        0x5B => &["win"],
+        0xA4 | 0x12 => &["lalt"],
+        0xA5 => &["ralt"],
+        0x20 => &["mspace", "lspace", "rspace"],
+        _ => &[],
+    }
+}
 static HOOK_READY: AtomicBool = AtomicBool::new(false);
+/// The real Caps Lock toggle, read from Windows each time. Earlier versions predicted it
+/// inside the keyboard hook, which drifted for good after one missed or injected event.
 pub fn caps() -> bool {
-    CAPS.load(Ordering::Relaxed)
+    unsafe { GetKeyState(VK_CAPITAL as i32) & 1 != 0 }
 }
 pub fn caps_ready() -> bool {
     HOOK_READY.load(Ordering::Relaxed)
@@ -33,19 +86,11 @@ unsafe extern "system" fn keyboard_hook(code: i32, w: WPARAM, l: LPARAM) -> LRES
             w as u32,
             WM_KEYDOWN | WM_SYSKEYDOWN | WM_KEYUP | WM_SYSKEYUP
         ) {
-            INPUT.event(
-                event.vkCode,
-                matches!(w as u32, WM_KEYDOWN | WM_SYSKEYDOWN),
-                input_ms(),
-            );
-        }
-        if event.vkCode == VK_CAPITAL as u32 {
-            if w as u32 == WM_KEYDOWN || w as u32 == WM_SYSKEYDOWN {
-                if !CAPS_HELD.swap(true, Ordering::Relaxed) {
-                    CAPS.store((GetKeyState(VK_CAPITAL as i32) & 1) == 0, Ordering::Relaxed);
-                }
-            } else if w as u32 == WM_KEYUP || w as u32 == WM_SYSKEYUP {
-                CAPS_HELD.store(false, Ordering::Relaxed);
+            let down = matches!(w as u32, WM_KEYDOWN | WM_SYSKEYDOWN);
+            INPUT.event(event.vkCode, down, input_ms());
+            let vk = (event.vkCode & 255) as usize;
+            if DOWN[vk].swap(down, Ordering::Relaxed) != down && down {
+                PRESSES[vk].fetch_add(1, Ordering::Relaxed);
             }
         }
     }
@@ -58,7 +103,6 @@ pub fn start_caps_monitor() {
                 INPUT.event(key as u32, true, input_ms());
             }
         }
-        CAPS.store(GetKeyState(VK_CAPITAL as i32) & 1 != 0, Ordering::Relaxed);
         let hook = SetWindowsHookExW(WH_KEYBOARD_LL, Some(keyboard_hook), std::ptr::null_mut(), 0);
         if hook.is_null() {
             return;
@@ -136,14 +180,14 @@ pub fn set_startup(enabled: bool) -> Result<(), String> {
             std::ptr::null_mut(),
         );
         if r != 0 {
-            return Err(format!("Không mở được Startup: {r}"));
+            return Err(format!("E:startup_open:{r}"));
         }
         let result = if enabled {
             let exe = std::env::current_exe().map_err(|e| e.to_string())?;
             let text = format!("\"{}\"", exe.display());
             if text.len() > 259 {
                 RegCloseKey(key);
-                return Err("Đường dẫn app quá dài cho Startup".into());
+                return Err("E:startup_path".into());
             }
             let val = wide(&text);
             RegSetValueExW(
@@ -161,7 +205,7 @@ pub fn set_startup(enabled: bool) -> Result<(), String> {
         if result == 0 || (!enabled && result == ERROR_FILE_NOT_FOUND) {
             Ok(())
         } else {
-            Err(format!("Không đổi được Startup: {result}"))
+            Err(format!("E:startup_set:{result}"))
         }
     }
 }

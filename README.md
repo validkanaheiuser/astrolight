@@ -20,7 +20,7 @@ This started as a personal, AI-assisted project to make the keyboard easier to u
 ## Download and run
 
 1. Open the [latest release](https://github.com/validkanaheiuser/astrolight/releases/latest).
-2. Download `Astrolight-3.2.0-windows-x64.exe`, or extract the portable ZIP to a permanent folder.
+2. Download `Astrolight-3.3.0-windows-x64.exe`, or extract the portable ZIP to a permanent folder.
 3. Connect the Lucky65 in **wired USB mode**, close other keyboard RGB controllers, and launch the app.
 
 Astrolight connects automatically, plays a short LED intro, and switches to your lighting profile. Minimize the window to keep custom lighting running; closing the app stops the stream and leaves the last LED frame.
@@ -35,11 +35,14 @@ Astrolight connects automatically, plays a short LED intro, and switches to your
 
 ## Features
 
-- **28 lighting modes:** per-key painting, solid/gradient colors, wave, rainbow, aurora, spiral, ripple, meteor, stars, rain, fire, plasma, nebula, ocean, double helix, and more. Adjust colors, brightness, speed, direction and scale; search, filter or cycle through effects.
+- **52 lighting effects:** per-key painting, solid and gradient colors, wave, rainbow, aurora, spiral, ripple, meteor, fire, plasma, digital rain, lightning, lava lamp, equalizer, snake and more. Adjust colors, brightness, speed, direction and size; search, filter or play through them. Thumbnails are drawn by the same code as the keyboard and animate on hover.
+- **Per-key effects:** switch the stage to **Per key**, select keys by clicking, dragging or with the quick sets (letters, numbers, WASD, arrows, modifiers), and give them their own effect, colors and speed. The rest of the keyboard keeps its effect.
+- **Reactive effects:** key pulse, glow, ripple, cross, typing heatmap and rainbow splash respond to presses, on the whole keyboard or only on chosen keys.
+- **Three interface languages:** English (default), Tiếng Việt and 简体中文. Switch in the sidebar or in Settings; the choice is saved at once.
 - **Remapping workspace:** Base, Fn 1 and Fn 2; basic keys, media, mouse functions, modifier combinations and macro assignments. See the physical position and assigned function together, search across categories, and undo/redo draft changes.
 - **Macro editor:** up to 10 slots and 84 press/release events per macro, with editable delays and repeat counts. Recording only happens inside the focused recording area.
 - **App/game lighting profiles:** switch effects by foreground executable name, with ordered matching rules and a default fallback.
-- **Quality-of-life options:** auto-connect, configurable LED intro, animated logo, Caps Lock indicator colors, Windows startup, presets and full-settings import/export.
+- **Settings that save themselves:** auto-connect, configurable LED intro, animated logo, Caps Lock indicator colors, Windows startup, presets and full-settings import/export.
 - **Firmware effects:** hand lighting control back to the keyboard for standalone effects.
 
 <details>
@@ -47,17 +50,21 @@ Astrolight connects automatically, plays a short LED intro, and switches to your
 
 ![Astrolight lighting workspace](docs/images/lighting.png)
 
+![Per-key effects](docs/images/per-key.png)
+
 </details>
 
 ## Typing takes priority
 
-Custom lighting defaults to **30 FPS**. Input-priority mode is enabled by default: Astrolight holds the current LED colors while keys are pressed and resumes after a 180 ms quiet interval. This also applies while holding movement keys in a game. The preview and keyboard stream are separate; a high display refresh rate does not require a high USB frame rate.
+Custom lighting defaults to **30 FPS**. Input-priority mode is enabled by default: Astrolight holds the current LED colors while keys are pressed and resumes after a 180 ms quiet interval. This also applies while holding movement keys in a game. Reactive effects therefore play just after you pause typing; turn input priority off in Settings if you want them to follow each press instantly. Reactive lighting follows the key Windows reports, so a remapped key lights the position of the function it sends.
 
-Version 3.0 could delay key release during sustained 120 FPS RGB traffic. Versions 3.1 and 3.2 reduce USB load, pace complete frames, and avoid catch-up bursts. Legacy 120 FPS profiles are migrated to 30 FPS. Initial device testing improved, but the precise firmware cause and long-term behavior on other units remain unverified. If you encounter repeats or delayed releases, stop custom lighting and include the effect, FPS and input-priority setting in your issue report.
+Astrolight skips USB frames that would not change any LED, so still or resting effects leave the bus idle. The preview and keyboard stream are separate; a high display refresh rate does not require a high USB frame rate.
+
+Version 3.0 could delay key release during sustained 120 FPS RGB traffic. Versions 3.1 and later reduce USB load, pace complete frames, and avoid catch-up bursts. Legacy 120 FPS profiles are migrated to 30 FPS. Initial device testing improved, but the precise firmware cause and long-term behavior on other units remain unverified. If you encounter repeats or delayed releases, stop custom lighting and include the effect, FPS and input-priority setting in your issue report.
 
 ## Remapping: draft versus device
 
-Selecting a keycode edits a **local draft**. **Lưu bản nháp** saves it on the computer. **Xem trước & ghi…** reviews the full configuration before writing all three keymap layers and the draft's macros to the keyboard. Importing a backup does not automatically write the keymap.
+Selecting a keycode edits a **local draft**. **Save draft** saves it on the computer. **Review and write…** reviews the full configuration before writing all three keymap layers and the draft's macros to the keyboard. Importing a backup does not automatically write the keymap.
 
 Astrolight **does not read back the keymap or macros currently stored in firmware**. A newly opened draft must not be treated as a backup of settings made with another app. The interface is inspired by VIA, but uses the Lucky65 vendor protocol, not QMK/VIA layer semantics.
 
@@ -86,6 +93,9 @@ cargo test --locked --manifest-path src-tauri/Cargo.toml --bin astrolight
 # Compare JavaScript preview colors with Rust output; requires Node.js
 node scripts/check-effects.cjs
 
+# Check that every interface string exists in every language
+node scripts/check-i18n.cjs
+
 # Optional offline UI tests; requires Node.js 20+ and Microsoft Edge
 cd scripts
 npm ci
@@ -102,7 +112,7 @@ src-tauri/src/          Rust engine, HID transport, keymaps and Windows integrat
 src-tauri/fixtures/     Reference HID reports used by encoder tests
 ui/                    Interface, SVG branding and Canvas lighting preview
 scripts/               Offline UI and effect-parity checks
-validation/            UI fixture and selected 3.2 validation results
+validation/            UI fixture and selected validation results
 docs/images/           Screenshots
 ```
 
@@ -116,7 +126,7 @@ docs/images/           Screenshots
 
 Settings stay in `%APPDATA%\local.astrolight.lucky65`: `settings.json`, `options.json`, `keymap.json` and `presets.json`. Keep the EXE at a stable path when enabling Windows startup; if you move it, disable and re-enable that option.
 
-The UI has no telemetry or remote content. Foreground profile matching reads the executable name, not window contents. The keyboard hook keeps transient pressed-key state and timing for input priority/Caps Lock; it does not store typed text, suppress keys or synthesize keyboard events. Macro recording is an explicit, focused UI operation.
+The UI has no telemetry or remote content. Foreground profile matching reads the executable name, not window contents. The keyboard hook keeps transient pressed-key state, timing and per-key press counters for input priority and reactive lighting; it does not store typed text, suppress keys or synthesize keyboard events. Macro recording is an explicit, focused UI operation.
 
 ## Contributing
 

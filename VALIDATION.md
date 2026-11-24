@@ -1,5 +1,16 @@
 # Public release verification — 2026-11-16
 
+## 3.3.0 — 2026-11-24
+
+- `cargo test --locked --bin astrolight`: 26 passed.
+- `node scripts/check-effects.cjs`: 52 modes, 624 cases (156 with per-key effects, all with key-press input), 132,912 channels, maximum difference 0.
+- `node scripts/check-i18n.cjs`: 428 keys present in English, Vietnamese and Simplified Chinese.
+- `npm test` in `scripts/`: 12 offline UI scenarios (effect selection, search and filters, per-key assignment, reactive preview, language switching, remap draft with undo/redo, macros, review before write, self-saving settings, 820 px window). No JavaScript errors.
+- Caps Lock: a probe on Windows 11 confirmed that a worker thread without a message queue reads the correct toggle state after each synthesized press.
+- Not verified on hardware in this pass: 3.3 lighting on the physical Lucky65, including per-key and reactive effects, skipped identical frames and the Caps Lock color. No remap or macro was written to a device.
+
+## 3.2.0
+
 The publication checkout passed 22 Rust unit tests, 336 JavaScript/Rust parity cases (71,568 channels, maximum difference 0), and the offline UI regression harness after a clean `npm ci`. Production Rust/UI inputs are unchanged from the validated 3.2.0 build. No remap/macro was written to hardware for publication.
 
 Selected 3.2 results and the offline UI fixture are included in `validation/`. Older development measurements below are historical notes; their original raw logs are not included in this public checkout.

@@ -17,8 +17,12 @@ pub struct Key {
     pub matrix: usize,
     pub layouts: Vec<Rect>,
 }
-pub fn keys() -> Vec<Key> {
-    serde_json::from_str(include_str!("../../ui/keyboard.json")).expect("embedded keyboard map")
+/// Parsed once; lighting updates validate against this many times per second.
+pub fn keys() -> &'static [Key] {
+    static KEYS: std::sync::OnceLock<Vec<Key>> = std::sync::OnceLock::new();
+    KEYS.get_or_init(|| {
+        serde_json::from_str(include_str!("../../ui/keyboard.json")).expect("embedded keyboard map")
+    })
 }
 pub fn reports(frame: &Frame, keys: &[Key]) -> [[u8; 64]; 5] {
     let mut data = [0u8; 310];
@@ -36,7 +40,7 @@ pub fn reports(frame: &Frame, keys: &[Key]) -> [[u8; 64]; 5] {
 pub const DIRECT: [u8; 8] = [8, 6, 0, 0, 0, 0, 0, 0];
 pub fn effect(id: u8, brightness: u8, speed: u8, color: u8) -> Result<[u8; 620], String> {
     if id > 19 || brightness > 4 || !(1..=5).contains(&speed) || color > 7 {
-        return Err("Tham số firmware không hợp lệ".into());
+        return Err("E:bad_firmware_args".into());
     }
     let mut b = [0u8; 620];
     b[..3].copy_from_slice(&[7, 2, 1]);
@@ -67,7 +71,7 @@ mod tests {
                 frame[i] = [71, 82, 93];
             }
         }
-        let p = reports(&frame, &keys);
+        let p = reports(&frame, keys);
         assert_eq!(p[1][63], 71);
         assert_eq!(&p[2][2..4], &[82, 93]);
         for (i, p) in p.iter().enumerate() {
@@ -79,9 +83,9 @@ mod tests {
         let k = keys();
         let mut f = [[0; 3]; KEY_COUNT];
         f[0] = [1, 2, 3];
-        let p = reports(&f, &k);
+        let p = reports(&f, k);
         assert_eq!(&p[0][53..56], &[1, 2, 3]);
-        let b = custom(&f, &k);
+        let b = custom(&f, k);
         assert_eq!(&b[59..62], &[1, 2, 3]);
         assert_eq!(k.iter().find(|k| k.id == "mspace").unwrap().matrix, 91);
     }

@@ -33,12 +33,14 @@ pub struct Status {
     pub send_ms: f64,
     pub missed_deadlines: u64,
     pub phase: f64,
+    /// Animation seconds; per-key and reactive effects run on this.
+    pub clock: f64,
     pub error: String,
 }
 impl Default for Status {
     fn default() -> Self {
         Self {
-            active_profile: "Mặc định".into(),
+            active_profile: String::new(),
             foreground: String::new(),
             intro: false,
             caps_lock: false,
@@ -54,6 +56,7 @@ impl Default for Status {
             send_ms: 0.,
             missed_deadlines: 0,
             phase: 0.,
+            clock: 0.,
             error: String::new(),
         }
     }
@@ -81,7 +84,7 @@ pub struct Engine {
 }
 impl Engine {
     pub fn new(config: Config, settings: crate::settings::Settings, app: tauri::AppHandle) -> Self {
-        let scene = Scene::new(config, &protocol::keys()).expect("validated initial config");
+        let scene = Scene::new(config, protocol::keys()).expect("validated initial config");
         let latest = Arc::new(Mutex::new((0, scene)));
         let status = Arc::new(Mutex::new(Status::default()));
         let (tx, rx) = mpsc::sync_channel(16);
@@ -108,7 +111,7 @@ impl Engine {
         Ok(())
     }
     pub fn update(&self, config: Config) -> Result<(), String> {
-        let scene = Scene::new(config, &protocol::keys())?;
+        let scene = Scene::new(config, protocol::keys())?;
         let mut latest = self.latest.lock().unwrap();
         latest.0 += 1;
         latest.1 = scene;
@@ -126,7 +129,7 @@ impl Engine {
                 action,
                 reply: Some(tx),
             })
-            .map_err(|_| "Bộ điều khiển đang bận, thử lại sau một lát.".to_owned())?;
+            .map_err(|_| "E:busy".to_owned())?;
         Ok(rx)
     }
     pub fn shutdown(&self) {
@@ -139,9 +142,31 @@ impl Engine {
         self.latest.lock().unwrap().1.config.clone()
     }
 }
+/// Set while the window is minimized: nobody is looking, so routine status ticks stay
+/// in-process instead of waking the webview four times a second.
+pub static MINIMIZED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 fn publish(status: &Status, shared: &Mutex<Status>, app: &tauri::AppHandle) {
     *shared.lock().unwrap() = status.clone();
     let _ = app.emit("device:status", status);
+}
+fn tick(status: &Status, shared: &Mutex<Status>, app: &tauri::AppHandle) {
+    if MINIMIZED.load(std::sync::atomic::Ordering::Relaxed) {
+        *shared.lock().unwrap() = status.clone();
+    } else {
+        publish(status, shared, app);
+    }
+}
+/// Which key indices light up for each virtual key in the given layout.
+fn press_targets(keys: &[protocol::Key], layout: usize) -> Vec<Vec<usize>> {
+    (0..256)
+        .map(|vk| {
+            crate::system::vk_key_ids(vk)
+                .iter()
+                .filter_map(|id| keys.iter().position(|k| k.id == *id))
+                .filter(|&i| keys[i].layouts[layout].w > 0.)
+                .collect()
+        })
+        .collect()
 }
 fn run(
     rx: Receiver<Command>,
@@ -179,6 +204,9 @@ fn run(
     let mut caps_off = crate::effects::rgb(&settings.caps_off).unwrap();
     let mut base = scene.config.clone();
     status.effective = base.clone();
+    let mut hits: Vec<(usize, f64)> = Vec::with_capacity(16);
+    let mut seen_presses = [0u32; 256];
+    let mut targets = press_targets(keys, scene.config.layout);
     loop {
         let command = if status.running {
             rx.try_recv().ok()
@@ -199,10 +227,10 @@ fn run(
                     match &device {
                         Some(d) => {
                             if let Err(e) = d.apply_keymap(&map) {
-                                failure=Some(format!("Ghi remap/macro chưa hoàn tất: {e}. Cần ghi lại cấu hình đầy đủ."));
+                                failure = Some(format!("E:keymap_write:{e}"));
                             }
                         }
-                        None => failure = Some("Chưa kết nối bàn phím USB".into()),
+                        None => failure = Some("E:not_connected".into()),
                     }
                     next = Instant::now();
                     last_tick = next;
@@ -241,7 +269,7 @@ fn run(
                         meter_frames = 0;
                         meter_send = 0.;
                     } else {
-                        failure = Some("Chưa kết nối bàn phím USB.".into());
+                        failure = Some("E:not_connected".into());
                     }
                 }
                 Action::Stop => {
@@ -259,10 +287,10 @@ fn run(
                     status.running = false;
                     resume = false;
                     let config = latest.lock().unwrap().1.clone();
-                    let frame = config.frame(status.phase);
+                    let frame = config.frame(status.phase, status.clock, &hits);
                     match &device {
                         Some(d) => {
-                            if let Err(e) = d.static_frame(&frame, &keys) {
+                            if let Err(e) = d.static_frame(&frame, keys) {
                                 failure = Some(e);
                                 device = None;
                                 status.connected = false;
@@ -270,7 +298,7 @@ fn run(
                                 last_frame = frame;
                             }
                         }
-                        None => failure = Some("Chưa kết nối bàn phím USB.".into()),
+                        None => failure = Some("E:not_connected".into()),
                     }
                 }
                 Action::Effect(id, b, s) => {
@@ -287,7 +315,7 @@ fn run(
                                 status.connected = false;
                             }
                         }
-                        None => failure = Some("Chưa kết nối bàn phím USB.".into()),
+                        None => failure = Some("E:not_connected".into()),
                     }
                 }
             }
@@ -342,7 +370,7 @@ fn run(
             if !Keyboard::present() {
                 device = None;
                 status.connected = false;
-                status.error = "Bàn phím đã ngắt. Đang chờ kết nối lại…".into();
+                status.error = "E:unplugged".into();
                 publish(&status, &shared, &app);
             }
         }
@@ -373,7 +401,7 @@ fn run(
         let rule_index = settings.matching_index(&status.foreground);
         let rule = rule_index.map(|i| &settings.rules[i]);
         let wanted = rule.map(|r| &r.config).unwrap_or(&base);
-        let mut label = rule.map(|r| r.name.as_str()).unwrap_or("Mặc định");
+        let label = rule.map(|r| r.name.as_str()).unwrap_or("");
         if let Some(start) = intro_started {
             if paused_at
                 .unwrap_or_else(Instant::now)
@@ -381,7 +409,6 @@ fn run(
                 .as_secs_f64()
                 < settings.intro_seconds
             {
-                label = "Mở màn";
                 status.intro = true;
             } else {
                 intro_started = None;
@@ -407,12 +434,33 @@ fn run(
             let mut config = wanted.clone();
             if status.intro {
                 config.mode = settings.intro_mode.clone();
+                config.per_key.clear();
             }
-            scene = Scene::new(config, &keys).unwrap();
+            scene = Scene::new(config, keys).unwrap();
+            targets = press_targets(keys, scene.config.layout);
             from = last_frame;
             transition = Instant::now();
             dirty = true;
             status.effective = scene.config.clone();
+        }
+        // Fresh presses feed reactive effects. The clock stands still while input priority
+        // holds the LEDs, so a burst of typing plays back together once the stream resumes.
+        for (vk, seen) in seen_presses.iter_mut().enumerate() {
+            let count = crate::system::press_count(vk);
+            if count != *seen {
+                *seen = count;
+                if scene.reactive() && status.running {
+                    for &key in &targets[vk] {
+                        if hits.len() == 16 {
+                            hits.remove(0);
+                        }
+                        hits.push((key, status.clock));
+                    }
+                }
+            }
+        }
+        if !scene.reactive() && !hits.is_empty() {
+            hits.clear();
         }
         let caps = crate::system::caps();
         if caps != status.caps_lock {
@@ -458,9 +506,11 @@ fn run(
             let dt = now.duration_since(last_tick).as_secs_f64().min(0.1);
             last_tick = now;
             status.phase += dt * scene.config.speed as f64 / 50.;
+            status.clock += dt;
+            hits.retain(|&(_, at)| status.clock - at < 30.);
             let in_transition = transition.elapsed() < Duration::from_millis(180);
             if scene.animated() || dirty || in_transition {
-                let target = scene.frame(status.phase);
+                let target = scene.frame(status.phase, status.clock, &hits);
                 let mut frame = if in_transition {
                     blend(&from, &target, transition.elapsed().as_secs_f64() / 0.18)
                 } else {
@@ -474,13 +524,24 @@ fn run(
                     }
                 }
                 let before = Instant::now();
-                let result = device.as_ref().unwrap().send_frame(&frame, &keys, 0);
+                // An unchanged frame is already on the LEDs: keep the USB bus quiet.
+                let result = if frame == last_frame && !dirty {
+                    Ok(false)
+                } else {
+                    device
+                        .as_ref()
+                        .unwrap()
+                        .send_frame(&frame, keys, 0)
+                        .map(|()| true)
+                };
                 match result {
-                    Ok(()) => {
-                        last_frame = frame;
-                        status.frames += 1;
-                        meter_frames += 1;
-                        meter_send += before.elapsed().as_secs_f64() * 1000.;
+                    Ok(sent) => {
+                        if sent {
+                            last_frame = frame;
+                            status.frames += 1;
+                            meter_frames += 1;
+                            meter_send += before.elapsed().as_secs_f64() * 1000.;
+                        }
                         dirty = false;
                         if stop_after_transition && !in_transition {
                             status.running = false;
@@ -525,7 +586,7 @@ fn run(
         }
         if last_emit.elapsed() >= Duration::from_millis(250) {
             last_emit = Instant::now();
-            publish(&status, &shared, &app);
+            tick(&status, &shared, &app);
         }
     }
 }

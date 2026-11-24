@@ -49,3 +49,17 @@ Phương án B được chọn:
 - Không gửi remap khi chọn keycode: chỉ gửi sau màn review có nút ghi rõ ràng.
 - Tab/Enter/Space chọn phím; mũi tên di chuyển trên sơ đồ khi có focus; focus rõ; tôn trọng Reduced Motion.
 - Giữ nguyên engine 3.1: 30 FPS và ưu tiên gõ bật mặc định.
+
+## Bổ sung cho 3.3 — 24/11/2026
+
+Nguồn tham khảo thêm, vẫn là triển khai riêng và chưa có nghiên cứu người dùng:
+
+| Nguồn | Điều rút ra | Áp dụng |
+|---|---|---|
+| [QMK: RGB Matrix effects](https://docs.qmk.fm/features/rgb_matrix) | Danh mục hiệu ứng quen thuộc với người dùng bàn phím cơ: cycle, band spiral, digital rain, reactive, splash, nexus, typing heatmap | 18 hiệu ứng chuyển động mới và 6 hiệu ứng theo phím bấm, viết lại bằng công thức riêng cho lưới 71 phím |
+| [OpenRGB Effects Plugin](https://openrgb.org/plugin_effects.html) | Nhiều hiệu ứng cùng lúc, gán theo vùng thiết bị | Hiệu ứng từng phím: mỗi phím có thể chạy hiệu ứng riêng trên nền hiệu ứng chung |
+| Đánh giá các configurator ([System76](https://techpowerup.com/review/system76-launch-configurable-mechanical-keyboard/5.html), [Framework Input Architect](https://community.frame.work/t/input-architect-open-source-keyboard-macropad-configurator-for-framework-laptops/81194)) | Người dùng chờ đợi xem trước tức thì, bấm để tô từng phím, lưu cấu hình có tên | Xem trước cập nhật ngay; chọn phím bằng bấm/kéo; preset; cài đặt tự lưu |
+
+Quyết định hình ảnh: chỉ một thứ nổi bật là bàn phím phát sáng (ánh LED tràn qua khe phím, chữ trên phím sáng theo màu LED, quầng sáng của khung đổi theo màu trung bình). Mọi thứ còn lại phẳng, viền mảnh, một màu nhấn lilac của logo. Bán kính theo vai trò: điều khiển 10, bảng 16, khung bàn phím 22. Chữ: Segoe UI Variable (Display cho tiêu đề), có Microsoft YaHei UI cho tiếng Trung. Thông báo dạng toast ở trên cùng thay cho thanh trạng thái cố định. Văn bản giao diện: câu thường, động từ rõ, tên nút giữ nguyên xuyên suốt luồng.
+
+Phạm vi điều chỉnh là một công tắc hai trạng thái ngay trên bàn phím (Cả bàn phím / Từng phím) để cùng một bộ điều khiển màu, tốc độ và cùng một thư viện phục vụ cả hai việc, thay vì thêm một trang riêng.
